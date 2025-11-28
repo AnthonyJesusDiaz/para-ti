@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para ti ❤️</title>
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* --- PANTALLA DE BLOQUEO --- */
+        #lock-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffe6e6;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 1s ease-in-out;
+        }
+
+        .heart-lock {
+            font-size: 100px;
+            color: #ff4d4d;
+            animation: latido 1.5s infinite;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 77, 77, 0.5);
+        }
+
+        @keyframes latido {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        input[type="text"] {
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 2px solid #ffcccc;
+            outline: none;
+            text-align: center;
+            font-size: 16px;
+            width: 200px;
+            transition: all 0.3s;
+        }
+
+        .hint { margin-top: 15px; color: #888; font-size: 0.9em; }
+        .error { color: red; font-size: 0.8em; height: 20px; margin-top: 5px; }
+        
+        button.primary-btn {
+            margin-top: 15px;
+            padding: 10px 30px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            box-shadow: 0 4px 10px rgba(255, 77, 77, 0.3);
+            transition: transform 0.2s;
+        }
+        button.primary-btn:hover { transform: scale(1.05); }
+
+        /* --- CONTENEDOR DE PAGINAS --- */
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1.5s ease;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Centrar contenido */
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* --- ESTILOS DE LA GALERÍA (Página 2) --- */
+        h1 { color: #d63384; font-family: 'Brush Script MT', cursive; font-size: 3em; margin-bottom: 10px; }
+        
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .photo-card {
+            background-color: transparent;
+            width: 200px;
+            height: 280px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .photo-card.flipped .card-inner { transform: rotateY(180deg); }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-front { background-color: white; padding: 10px; box-sizing: border-box; }
+        .card-front img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 10px; }
+        .card-back { background-color: #fff0f5; color: #d63384; transform: rotateY(180deg); padding: 15px; border: 4px solid white; box-sizing: border-box; }
+        .secret-message { font-size: 0.9em; font-style: italic; }
+
+        /* --- ESTILOS DE LA CARTA FINAL (Página 3) --- */
+        #final-page {
+            background: linear-gradient(to top, #fff1eb 0%, #ace0f9 100%); /* Fondo cielo suave */
+        }
+
+        .letter-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .final-title {
+            color: #333;
+            font-family: 'Georgia', serif;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ff4d4d;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .final-text {
+            font-size: 1.1em;
+            color: #444;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+
+        .quote-box {
+            font-style: italic;
+            color: #666;
+            border-left: 4px solid #d63384;
+            padding-left: 15px;
+            margin: 20px 0;
+            text-align: left;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .author {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: right;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="lock-screen">
+        <div class="heart-lock">❤️</div>
+        <h3>La llave de mi corazón</h3>
+        <input type="text" id="password-input" placeholder="Palabra clave...">
+        <div class="error" id="error-msg"></div>
+        <p class="hint">Pista: Tu comida favorita (todo minúsculas, sin pronombre)</p>
+        <button class="primary-btn" onclick="checkPassword()">Abrir</button>
+    </div>
+
+    <div id="gallery-page" class="page">
+        <h1>Nuestros Momentos</h1>
+        <p>Toca cada foto para descubrir lo que hay detrás...</p>
+
+        <div class="gallery">
+            <div class="photo-card" onclick="flipCard(this)">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <img src="C:\VisualCode\proyectos libres\nuestro primer viaje.jpg" alt="Foto 1">
+                        <div class="caption">Aquel día especial</div>
+                    </div>
+                    <div class="card-back">
+                        <p class="secret-message">"Recuerdo lo mucho que nos reímos ese día, me encantó mucho. Fue nuestro primer viaje junto a un lugar lejos"</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="photo-card" onclick="flipCard(this)">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <img src="C:\VisualCode\proyectos libres\conciendo lugares.jpg" alt="Foto 2">
+                        <div class="caption">Nuevos lugares</div>
+                    </div>
+                    <div class="card-back">
+                        <p class="secret-message">"Pasaría mil tardes más contigo en este lugar y en muchos lugares. Te extraño mucho"</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="photo-card" onclick="flipCard(this)">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <img src="C:\VisualCode\proyectos libres\sonrisa.jpg" alt="Foto 3">
+                        <div class="caption">Tu sonrisa</div>
+                    </div>
+                    <div class="card-back">
+                        <p class="secret-message">"Todas la fotos contingo son mis favoritas, pero esta es una de las principales porque se ve esa sonrisa que ilumina todo."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="primary-btn" onclick="goToFinalPage()">Tengo algo importante que decirte...</button>
+    </div>
+
+    <div id="final-page" class="page">
+        <div class="letter-container">
+            <h2 class="final-title">Mi Promesa</h2>
+            
+            <p class="final-text">
+                He estado pensando mucho en nosotros. Sé que hemos pasado por momentos difíciles, pero al mirar nuestras fotos, solo veo lo valioso que es lo que tenemos.
+                <br><br>
+                Quiero que sepas que <strong>quiero una vida contigo</strong>. Estoy dispuesto a luchar por nuestro amor todos los días, a cuidar lo que somos y a nunca rendirme. Mis errores me han enseñado a valorarte más que nunca.
+            </p>
+
+            <div class="quote-box">
+                "No te rindas, aún estás a tiempo de alcanzar y comenzar de nuevo, aceptar tus sombras, enterrar tus miedos, liberar el lastre, retomar el vuelo."
+                <span class="author">— Mario Benedetti</span>
+            </div>
+            
+            <p class="final-text">
+                Dicen que el amor a veces se apaga un poco, pero estoy seguro de que <strong>al encenderlo de nuevo, arde con más fuerza que nunca</strong>.
+            </p>
+
+            <div style="font-size: 30px; margin-top: 20px;">Te amo mucho Chantal🌹</div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN ---
+        const LA_LLAVE = "causa"; // <--- CAMBIA ESTO
+
+        // Función voltear carta
+        function flipCard(card) {
+            card.classList.toggle('flipped');
+        }
+
+        // Validar contraseña
+        function checkPassword() {
+            const input = document.getElementById('password-input').value.toLowerCase();
+            const lockScreen = document.getElementById('lock-screen');
+            const galleryPage = document.getElementById('gallery-page');
+            const errorMsg = document.getElementById('error-msg');
+
+            if (input === LA_LLAVE) {
+                lockScreen.style.transform = "translateY(-100%)";
+                setTimeout(() => {
+                    lockScreen.style.display = "none";
+                    galleryPage.classList.add('active');
+                }, 500);
+            } else {
+                errorMsg.textContent = "Inténtalo de nuevo... ❤️";
+                // Vibración
+                const inputField = document.getElementById('password-input');
+                inputField.style.transform = "translateX(10px)";
+                setTimeout(() => inputField.style.transform = "translateX(-10px)", 100);
+                setTimeout(() => inputField.style.transform = "translateX(0)", 200);
+            }
+        }
+
+        // Ir a la página final
+        function goToFinalPage() {
+            const galleryPage = document.getElementById('gallery-page');
+            const finalPage = document.getElementById('final-page');
+            
+            galleryPage.style.opacity = "0";
+            setTimeout(() => {
+                galleryPage.classList.remove('active');
+                finalPage.classList.add('active');
+            }, 1000);
+        }
+
+        // Enter para contraseña
+        document.getElementById('password-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkPassword();
+        });
+    </script>
+
+</body>
+</html>
